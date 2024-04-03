@@ -1,6 +1,11 @@
 const express = require('express');
 const app = express();
 const chatgptAPIRoutes = require('./routes/chatgptAPI')
+const cors = require('cors');
+
+app.use(cors({
+    origin: 'https://twitter.com'
+}))
 
 require('dotenv').config();
 const port = process.env.PORT || 8080;
