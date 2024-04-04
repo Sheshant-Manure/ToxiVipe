@@ -6,10 +6,24 @@
 }
 
 body {
-    height: 100px;
     width: 400px;
 }
 
 div.container {
     width: 400px;
+}
+
+#nonToxic {
+    color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+}
+
+#checkToxicity {
+    margin-bottom: 10px;
+}
+
+#copyBtn {
+    cursor: pointer;
 }
