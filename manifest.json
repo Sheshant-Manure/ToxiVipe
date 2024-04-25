@@ -1,7 +1,7 @@
 {
   "name": "ToxiVipe",
   "description": "A Google Chrome extension for moderating toxicity on social media built as a wrapper around OpenAI's chatGPT API.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 3,
   "action": {
     "default_popup": "./popup/popup.html",
