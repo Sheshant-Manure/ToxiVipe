@@ -4,7 +4,7 @@ const chatgptAPIRoutes = require('./routes/chatgptAPI')
 const cors = require('cors');
 
 app.use(cors({
-    origin: 'https://twitter.com'
+    origin: 'https://x.com'
 }))
 
 require('dotenv').config();

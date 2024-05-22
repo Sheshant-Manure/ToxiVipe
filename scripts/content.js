@@ -5,6 +5,7 @@
       "statement": ""
     };
     let nonToxicStatement = [];
+    let shouldCheck = true
   
     // The twitter DOM tree takes few seconds to load completely. Therefore, we wait for 7 seconds to select the tweet text
     let typingTimer;
@@ -25,12 +26,14 @@
         typingTimer = setTimeout(()=>{
             if(data.statement.length > 1 && data.statement !== nonToxicStatement){
               checkToxicity();
+              shouldCheck = true;
             }
           }, 5000);
         })
       }, 5000);
 
     const checkToxicity = async () => {
+      if(!shouldCheck) return; 
       if(nonToxicStatement.includes(data.statement)) return console.log('Post has been modified with a suggested non-toxic statement');
       console.log('checking toxicity for: ', data.statement);
       try {
@@ -44,32 +47,54 @@
         if (response.ok) {
           const toxicity = await response.json();
           console.log(toxicity);
+          const element = document.querySelector(".css-175oi2r.r-1igl3o0.r-qklmqi.r-1w6e6rj.r-htfu76.r-13qz1uu.r-1awozwy.r-18u37iz.r-1wtj0ep");
           if(toxicity.class === "toxic"){
+            shouldCheck = false;
             tweet.style.backgroundColor = "red";
             alert("This statement contains potentially harmful language.");
             const newDiv = document.createElement('div');
-            // const toxicWordsDiv = document.createElement('div');
-            // toxicWordsDiv.style.display = 'flex';
-            // toxicity["toxic words"].forEach((word)=>{
-            //   const p = document.createElement('p');
-            //   p.style.backgroundColor = 'red';
-            //   p.style.fontSize = '14px';
-            //   p.style.padding = '5px';
-            //   p.style.margin = '5px';
-            //   p.textContent = word;
-            //   toxicWordsDiv.appendChild(p);
-            // })
-            // newDiv.appendChild(toxicWordsDiv);
-
-            // Get the toxic words from the toxicity object
+            tweet.style.backgroundColor = 'red';
+            newDiv.style.width = '100%';
+            newDiv.style.display = 'flex';
+            newDiv.style.margin = '10px';
+            newDiv.style.justifyContent = 'center';
+            newDiv.style.alignItems = 'center';
+            newDiv.style.minHeight = '50px';
+            newDiv.style.backgroundColor = 'white';
+            element.parentNode.insertBefore(newDiv, element.nextSibling);
+            nonToxicStatement = toxicity['non-toxic statement'];
+            nonToxicStatement.forEach((statement)=>{
+              const p = document.createElement('p');
+              p.textContent = statement;
+              p.style.fontSize = '18px';
+              p.style.textAlign = 'center';
+              p.style.color = 'black';
+              p.style.cursor = 'pointer';
+              p.style.padding = '5px';
+              p.style.margin = '5px';
+              p.onclick = () => {
+                tweet.textContent = statement;
+                tweet.style.backgroundColor = 'green'
+              }
+              newDiv.appendChild(p);
+            })
             const toxicWords = toxicity["toxic words"];
-            let tweetText = tweet.textContent;
-            toxicWords.forEach(toxicWord => {
-                const regex = new RegExp('\\b' + toxicWord + '\\b', 'gi');
-                tweetText = tweetText.replace(regex, `<span style="background-color: yellow;">$&</span>`);
+            const div = document.createElement('div');
+            div.style.margin = '5px';
+            toxicWords.forEach((word) => {
+              const spanElement = document.createElement('span');
+              spanElement.textContent = ` ${word} `;
+              spanElement.style.padding = '5px';
+              spanElement.style.margin = '5px';
+              spanElement.style.backgroundColor = 'red';
+              spanElement.style.fontSize = '18px';
+              div.appendChild(spanElement);
             });
-            tweet.innerHTML = tweetText;
-            newDiv.id = 'suggestions';
+            element.parentNode.insertBefore(div, element.nextSibling);
+          }
+          else {
+            tweet.style.backgroundColor = "green";
+            const newDiv = document.createElement('div');
             newDiv.style.width = '100%';
             newDiv.style.display = 'flex';
             newDiv.style.marginTop = '5px';
@@ -77,24 +102,22 @@
             newDiv.style.alignItems = 'center';
             newDiv.style.minHeight = '50px';
             newDiv.style.backgroundColor = 'white';
-            tweet.parentNode.insertBefore(newDiv, tweet.nextSibling);
+            element.parentNode.insertBefore(newDiv, element.nextSibling);
             nonToxicStatement = toxicity['non-toxic statement'];
             nonToxicStatement.forEach((statement)=>{
               const p = document.createElement('p');
               p.textContent = statement;
-              p.style.fontSize = '12px';
-              p.style.textAlign = 'center';
+              p.style.fontSize = '18px';
               p.style.color = 'black';
               p.style.cursor = 'pointer';
+              p.style.padding = '5px';
+              p.style.margin = '5px';
               p.onclick = () => {
                 tweet.textContent = statement;
                 tweet.style.backgroundColor = 'green'
               }
               newDiv.appendChild(p);
             })
-          }
-          else {
-            tweet.style.backgroundColor = "green";
           }
           chrome.runtime.sendMessage({action: 'toxicityResponse', data: toxicity})
           // You can further process the toxicity data here (e.g., highlight the tweet)
